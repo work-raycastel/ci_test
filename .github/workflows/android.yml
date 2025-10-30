@@ -1,59 +1,59 @@
 name: Android-Release
 
 on:
-    push:
-        tags:
-            - "v*"
+  push:
+    tags:
+      - "v*"
 
 jobs:
-    build-android:
-        runs-on: ubuntu-latest
+  build-android:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: "📥 Checkout repository"
-              uses: actions/checkout@v4
+    steps:
+      - name: "📥 Checkout repository"
+        uses: actions/checkout@v4
 
-            - name: "🧰 Install Flutter"
-              uses: subosito/flutter-action@v2
-              with:
-                  flutter-version: 3.32.6
+      - name: "🧰 Install Flutter"
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.35.7
 
-            - name: "🔍 Verify Flutter version"
-              run: flutter --version
+      - name: "🔍 Verify Flutter version"
+        run: flutter --version
 
-            - name: "📦 Install dependencies"
-              run: flutter pub get
+      - name: "📦 Install dependencies"
+        run: flutter pub get
 
-            - name: "Build generated files"
-              run: dart run build_runner build --delete-conflicting-outputs
+      - name: "Build generated files"
+        run: dart run build_runner build --delete-conflicting-outputs
 
-            # If you have setup scripts like rive_native or changelog generator
-            - name: "Setup rive_native"
-              run: dart run rive_native:setup --verbose --clean --platform android
+      # If you have setup scripts like rive_native or changelog generator
+      - name: "Setup rive_native"
+        run: dart run rive_native:setup --verbose --clean --platform android
 
-            - name: "Generate latest changelog"
-              run: dart run bin/latest_changelog.dart
+      - name: "Generate latest changelog"
+        run: dart run bin/latest_changelog.dart
 
-            - name: "🏗️ Build Android AppBundle (.aab)"
-              run: |
-                  flutter build appbundle --release \
-                    --build-number ${{ github.run_number }} \
-                    --dart-define=BUILD_TAG=${{ github.ref_name }}
+      - name: "🏗️ Build Android AppBundle (.aab)"
+        run: |
+          flutter build appbundle --release \
+            --build-number ${{ github.run_number }} \
+            --dart-define=BUILD_TAG=${{ github.ref_name }}
 
-            - name: "🏗️ Build Android APK (.apk)"
-              run: |
-                  flutter build apk --release \
-                    --build-number ${{ github.run_number }} \
-                    --dart-define=BUILD_TAG=${{ github.ref_name }}
+      - name: "🏗️ Build Android APK (.apk)"
+        run: |
+          flutter build apk --release \
+            --build-number ${{ github.run_number }} \
+            --dart-define=BUILD_TAG=${{ github.ref_name }}
 
-            - name: "🧾 List built artifacts"
-              run: ls -lh build/app/outputs/flutter-apk/ || true && ls -lh build/app/outputs/bundle/release/ || true
+      - name: "🧾 List built artifacts"
+        run: ls -lh build/app/outputs/flutter-apk/ || true && ls -lh build/app/outputs/bundle/release/ || true
 
-            - name: "📤 Attach build artifacts to GitHub Release"
-              uses: softprops/action-gh-release@v2
-              with:
-                  files: |
-                      build/app/outputs/flutter-apk/app-release.apk
-                      build/app/outputs/bundle/release/app-release.aab
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: "📤 Attach build artifacts to GitHub Release"
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

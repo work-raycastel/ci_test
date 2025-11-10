@@ -1,0 +1,47 @@
+name: windows-build
+
+on:
+    push:
+        tags:
+            - "v*"
+
+env:
+    FLUTTER_VERSION: 3.32.6
+
+jobs:
+    build-windows:
+        runs-on: windows-latest
+        steps:
+            - name: Clone repository
+              uses: actions/checkout@v4
+
+            - name: Set up Flutter
+              uses: subosito/flutter-action@v2
+              with:
+                  flutter-version: ${{ env.FLUTTER_VERSION }}
+
+            - name: Install dependencies
+              run: flutter pub get
+
+            - name: Generate objects
+              run: dart run build_runner build --delete-conflicting-outputs
+
+            - name: Build Windows app
+              run: flutter build windows --release
+
+            - name: Zip Windows Release
+              run: |
+                  cd build/windows/x64/runner/Release
+                  powershell Compress-Archive -Path * -DestinationPath "${{ github.workspace }}\windows-app-${{ github.ref_name }}.zip"
+
+            - name: Create MSIX package
+              run: dart run msix:create
+
+            - name: Create GitHub Release and Upload Artifact
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: |
+                      windows-app-${{ github.ref_name }}.zip
+                      build/windows/runner/Release/*.msix
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -28,7 +28,6 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  msix: ^3.16.12
   flutter:
     sdk: flutter
 
@@ -37,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
+  msix: ^3.16.12
   flutter_test:
     sdk: flutter
 
@@ -87,3 +87,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+msix_config:
+  display_name: SEPIA Control
+  publisher_display_name: Karno Sound Ltd.
+  identity_name: com.karno.sepia.client
+  trim_logo: false

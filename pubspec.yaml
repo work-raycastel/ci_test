@@ -93,3 +93,4 @@ msix_config:
   publisher_display_name: Karno Sound Ltd.
   identity_name: com.karno.sepia.client
   trim_logo: false
+  install_certificate: false

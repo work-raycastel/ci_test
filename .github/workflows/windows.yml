@@ -39,6 +39,6 @@ jobs:
         with:
           files: |
             windows-app-${{ github.ref_name }}.zip
-            build/windows/runner/Release/windows-app-${{ github.ref_name }}.msix
+            build\windows\x64\runner\Release\ci_test.msix
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

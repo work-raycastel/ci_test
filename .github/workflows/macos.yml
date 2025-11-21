@@ -1,54 +1,57 @@
 name: Build macOS DMG
 
+permissions:
+  contents: write
+
 on:
-    push:
-        tags:
-            - "v*"
+  push:
+    tags:
+      - "v*"
 
 jobs:
-    build-macos:
-        runs-on: macos-latest
+  build-macos:
+    runs-on: macos-latest
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Setup Flutter
-              uses: subosito/flutter-action@v2
-              with:
-                  channel: stable
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
 
-            - name: Enable macOS Desktop
-              run: flutter config --enable-macos-desktop
+      - name: Enable macOS Desktop
+        run: flutter config --enable-macos-desktop
 
-            - name: Install dependencies
-              run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-            - name: Build macOS App
-              run: flutter build macos --release
+      - name: Build macOS App
+        run: flutter build macos --release
 
-            # Install create-dmg tool
-            - name: Install create-dmg
-              run: brew install create-dmg
+      # Install create-dmg tool
+      - name: Install create-dmg
+        run: brew install create-dmg
 
-            # Build DMG
-            - name: Create DMG
-              run: |
-                  mkdir -p dist
-                  create-dmg \
-                    --volname "SEPIA Client" \
-                    --background "assets/logo.png" \
-                    --window-pos 200 120 \
-                    --window-size 600 400 \
-                    --icon-size 120 \
-                    --icon "ci_test.app" 150 200 \
-                    --app-drop-link 450 200 \
-                    "dist/SEPIA client.dmg" \
-                    "build/macos/Build/Products/Release/ci_test.app"
+      # Build DMG
+      - name: Create DMG
+        run: |
+          mkdir -p dist
+          create-dmg \
+            --volname "SEPIA Client" \
+            --background "assets/logo.png" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 120 \
+            --icon "ci_test.app" 150 200 \
+            --app-drop-link 450 200 \
+            "dist/SEPIA client.dmg" \
+            "build/macos/Build/Products/Release/ci_test.app"
 
-            - name: Upload Release Artifacts
-              uses: softprops/action-gh-release@v2
-              with:
-                  files: dist/*.dmg
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Release Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

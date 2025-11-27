@@ -40,20 +40,6 @@ jobs:
       - name: Build App Bundle
         run: flutter build appbundle --release --build-number ${{ github.run_attempt }}
 
-      # ---- UPLOAD APK ARTIFACT ----
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: SEPIA Control apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-      # ---- UPLOAD AAB ARTIFACT ----
-      - name: Upload AAB artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: SEPIA Control aab
-          path: build/app/outputs/bundle/release/app-release.aab
-
       # ---- UPLOAD TO GITHUB RELEASE ----
       - name: Upload release assets
         uses: softprops/action-gh-release@v2

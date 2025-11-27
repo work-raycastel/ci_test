@@ -1,63 +1,62 @@
 name: Android-build
 
 on:
-    push:
-        tags:
-            - "v*"
+  push:
+    tags:
+      - "v*"
 
 jobs:
-    android-build:
-        runs-on: ubuntu-latest
+  android-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
 
-        steps:
-            - name: Clone repository
-              uses: actions/checkout@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
 
-            - name: Setup Flutter
-              uses: subosito/flutter-action@v2
-              with:
-                  flutter-version: 3.32.6
+      - name: Verify Flutter version
+        run: flutter --version
 
-            - name: Verify Flutter version
-              run: flutter --version
+      - name: Get dependencies
+        run: flutter pub get
 
-            - name: Get dependencies
-              run: flutter pub get
+      - name: Setup rive_native
+        run: dart run rive_native:setup --verbose --clean --platform android
 
-            - name: Setup rive_native
-              run: dart run rive_native:setup --verbose --clean --platform android
+      # - name: Build generated files
+      #   run: dart run build_runner build --delete-conflicting-outputs
 
-            # - name: Build generated files
-            #   run: dart run build_runner build --delete-conflicting-outputs
+      # - name: Generate latest changelog
+      #   run: dart run bin/latest_changelog.dart
 
-            # - name: Generate latest changelog
-            #   run: dart run bin/latest_changelog.dart
+      # ---- BUILD APK ----
+      - name: Build APK
+        run: flutter build apk --release --build-number ${{ github.run_attempt }}
 
-            # ---- BUILD APK ----
-            - name: Build APK
-              run: flutter build apk --release --build-number ${{ github.run_attempt }}
+      # ---- BUILD AAB ----
+      - name: Build App Bundle
+        run: flutter build appbundle --release --build-number ${{ github.run_attempt }}
 
-            # ---- BUILD AAB ----
-            - name: Build App Bundle
-              run: flutter build appbundle --release --build-number ${{ github.run_attempt }}
+      # ---- UPLOAD APK ARTIFACT ----
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SEPIA Control
+          path: build/app/outputs/flutter-apk/app-release.apk
 
-            # ---- UPLOAD APK ARTIFACT ----
-            - name: Upload APK artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: SEPIA Control
-                  path: build/app/outputs/flutter-apk/app-release.apk
+      # ---- UPLOAD AAB ARTIFACT ----
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SEPIA Control
+          path: build/app/outputs/bundle/release/app-release.aab
 
-            # ---- UPLOAD AAB ARTIFACT ----
-            - name: Upload AAB artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: SEPIA Control
-                  path: build/app/outputs/bundle/release/app-release.aab
-
-            - name: List outputs
-              run: |
-                  echo "APK:"
-                  ls -R build/app/outputs/flutter-apk
-                  echo "AAB:"
-                  ls -R build/app/outputs/bundle/release
+      - name: List outputs
+        run: |
+          echo "APK:"
+          ls -R build/app/outputs/flutter-apk
+          echo "AAB:"
+          ls -R build/app/outputs/bundle/release

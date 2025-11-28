@@ -1,4 +1,4 @@
-package com.example.ci_test
+package com.karno.sepia.client
 
 import io.flutter.embedding.android.FlutterActivity
 
